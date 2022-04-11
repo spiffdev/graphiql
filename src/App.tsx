@@ -4,7 +4,8 @@ import {ChangeEventHandler, useCallback, useState} from 'react';
 
 function App() {
   const exampleUrl = "http://localhost:1234/graphql"
-  const [headers, setHeaders] = useState("");
+  const [headers, setHeaders] = useState("{}");
+  const [headersField, setHeadersField] = useState("");
   const [url, setUrl] = useState(exampleUrl);
   const [urlField, setUrlField] = useState(exampleUrl);
 
@@ -38,21 +39,22 @@ function App() {
     setUrlField(e.target.value);
   }, []);
 
-  const handleUrlButton = useCallback(() => {
+  const handleSetButton = useCallback(() => {
+    setHeaders(headersField);
     setUrl(urlField);
-  }, [urlField]);
+  }, [headersField, urlField]);
 
   return (
     <div style={{height: '100%', display: 'flex', flexDirection: 'column'}}>
       <div>
         <label>GraphQL endpoint</label>
-        <button onClick={handleUrlButton}>Set me!</button>
+        <button onClick={handleSetButton}>Set URL and headers</button>
         <input value={urlField} onChange={handleUrlInput} style={{width: '50%'}} />
       </div>
       <GraphiQL
         fetcher={fetcher}
-        headers={headers}
-        onEditHeaders={setHeaders}
+        headers={headersField}
+        onEditHeaders={setHeadersField}
       />
     </div>
   );
