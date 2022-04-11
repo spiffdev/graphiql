@@ -4,12 +4,19 @@ import {ChangeEventHandler, useCallback, useState} from 'react';
 
 function App() {
   const exampleUrl = "http://localhost:1234/graphql"
+  const [headers, setHeaders] = useState("");
   const [url, setUrl] = useState(exampleUrl);
   const [urlField, setUrlField] = useState(exampleUrl);
 
   const fetcher = useCallback(async (graphQLParams) => {
     if (!url) {
       return "";
+    }
+    let extraHeaders = {};
+    try {
+      extraHeaders = JSON.parse(headers);
+    } catch (e) {
+      console.error('Failed to parse headers.');
     }
     const data = await fetch(
       url,
@@ -18,13 +25,14 @@ function App() {
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
+          ...extraHeaders,
         },
         body: JSON.stringify(graphQLParams),
         credentials: 'same-origin',
       },
     );
     return data.json().catch(() => data.text());
-  }, [url]);
+  }, [headers, url]);
 
   const handleUrlInput: ChangeEventHandler<HTMLInputElement> = useCallback((e) => {
     setUrlField(e.target.value);
@@ -43,6 +51,8 @@ function App() {
       </div>
       <GraphiQL
         fetcher={fetcher}
+        headers={headers}
+        onEditHeaders={setHeaders}
       />
     </div>
   );
